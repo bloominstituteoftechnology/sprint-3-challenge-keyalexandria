@@ -45,7 +45,6 @@
     // ❗ Debug properly using the Console
 
     // 👉 CHALLENGE 1 - Integers
-    class Integers {
       // 🧠 Constructor takes **any** number of arguments, which are integers
       // 🧠 Instances have an `ints` property which is an array holding the integers above in the same order
       // 🧠 Implement a `getAll` method which returns the data held in the `ints` property
@@ -58,11 +57,51 @@
       // 🧠 Implement a `getAllReversed` method which returns the ints in reverse order
       // ❗ WARNING: except for `getAllReversed`, methods must respect the order of the integers
       // ❗ WARNING: note that none of the methods actually mutate the `ints` property
+      class Integers {
+  constructor(...args) {
+    this.ints = args.filter(Number.isInteger);
+  }
 
+  getAll() {
+    return this.ints.slice();
+  }
+
+  getEvens() {
+    return this.ints.filter(num => num % 2 === 0);
+  }
+
+  getNegatives() {
+    return this.ints.filter(num => num < 0);
+  }
+
+  getAllSquared() {
+    return this.ints.map(num => num ** 2);
+  }
+
+  pop() {
+    if (this.ints.length === 0) {
+      return undefined;
     }
+    return this.ints.pop();
+  }
 
-    // 👉 CHALLENGE 2 NerfGun
-    class NerfGun {
+  push(value) {
+    if (Number.isInteger(value)) {
+      this.ints.push(value);
+    }
+    return this.ints.slice();
+  }
+
+  getEveryNth(n) {
+    return this.ints.filter((_, index) => index % n === 0);
+  }
+
+  getAllReversed() {
+    return this.ints.slice().reverse();
+  }
+}
+
+// 👉 CHALLENGE 2 NerfGun
       // 🧠 Constructor takes one argument: the total number of projectiles supported by the instance
       // 🧠 New instances initialize fully loaded and with the safety on
       // 🧠 Instances have a `shoot` method that takes no arguments:
@@ -76,11 +115,43 @@
       //      * When engaging the safety, return "Safety enabled!"
       //      * When disengaging the safety, return "Safety disabled!"
       // 🌟 HINT: instances need to keep track of their maximum capacity as well as their current capacity
-
+      class NerfGun {
+  constructor(totalProjectiles) {
+    if (typeof totalProjectiles === 'number' && totalProjectiles > 0) {
+      this.capacity = totalProjectiles;
+    } else {
+      throw new Error("Invalid total projectiles. Please provide a number greater than 0.");
     }
 
+    this.currentCapacity = this.capacity;
+    this.safetyOn = true;
+  }
+
+  shoot() {
+    if (this.currentCapacity > 0 && !this.safetyOn) {
+      this.currentCapacity--;
+      return "Bang!";
+    } else {
+      return "Click!";
+    }
+  }
+
+  reload(number) {
+    if (typeof number === 'number' && number > 0) {
+      this.currentCapacity = Math.min(this.capacity, this.currentCapacity + number);
+      return `${this.currentCapacity} projectiles left!`;
+    } else {
+      return "Error reloading!";
+    }
+  }
+
+  toggleSafety() {
+    this.safetyOn = !this.safetyOn;
+    return this.safetyOn ? "Safety enabled!" : "Safety disabled!";
+  }
+}
+
     // 👉 CHALLENGE 3 EBook
-    class EBook {
       // 🧠 Constructor takes two arguments:
       //      * First arg is a string with the whole text of the book
       //      * Second arg is the number of characters contained in a single page of the book
@@ -95,11 +166,39 @@
       //    ebook.next() // returns null
       // 🌟 HINT: remember about the `slice` method which strings and arrays have
       // ❗ Feel free to implement `back`, although this is not required nor graded
+      class EBook {
+  constructor(text, charactersPerPage) {
+    this.text = text;
+    this.charactersPerPage = charactersPerPage;
+    this.currentPage = 0;
+  }
 
+  next() {
+    const start = this.currentPage * this.charactersPerPage;
+    const end = start + this.charactersPerPage;
+
+    if (start < this.text.length) {
+      this.currentPage++;
+      return this.text.slice(start, end);
+    } else {
+      return null;
     }
+  }
+
+  // Optional: Implementing the `back` method
+  back() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      const start = this.currentPage * this.charactersPerPage;
+      const end = start + this.charactersPerPage;
+      return this.text.slice(start, end);
+    } else {
+      return null;
+    }
+  }
+}
 
     // 👉 CHALLENGE 4 AntFarm
-    class AntFarm {
       // 🧠 Constructor takes **any** number of arguments, which are strings: the names of your ants
       // 🧠 Instances of AntFarm have an `ants` property holding an array of ants:
       //      * Each ant is an object with a `name` prop and a `health` prop that starts at 100
@@ -130,8 +229,54 @@
       //      console.log(list) // prints ["a"]
       // 👉 HINT: if you are not feeling confident with map and filter, solve the problem with for loops,
       //      and with the piece of mind of all tests passing, refactor to use map/filter
+      class AntFarm {
+  constructor(...antNames) {
+    this.ants = antNames.map(name => ({ name, health: 100 }));
+  }
 
+  work() {
+    if (this.ants.length === 0) {
+      return "No ants here. Did you work them to death?";
     }
+
+    const numberOfAnts = this.ants.length;
+    this.ants = this.ants.map(ant => {
+      ant.health -= 20;
+      if (ant.health <= 0) {
+        // Ant dies
+        return null;
+      }
+      return ant;
+    }).filter(Boolean);
+
+    return `${numberOfAnts} ants starting work!`;
+  }
+
+  feed(antName) {
+    const antIndex = this.ants.findIndex(ant => ant.name === antName);
+
+    if (antIndex !== -1) {
+      this.ants = this.ants.map(ant => {
+        if (ant.name === antName) {
+          ant.health += 15;
+        }
+        return ant;
+      });
+      return "Yum!";
+    } else {
+      return `${antName} not found!`;
+    }
+  }
+}
+
+// Example usage:
+const farm = new AntFarm('Jess', 'Blake');
+console.log(farm.ants); // [{name: 'Jess', health: 100}, {name: 'Blake', health: 100}]
+console.log(farm.work()); // "2 ants starting work!"
+console.log(farm.ants); // [{name: 'Jess', health: 80}, {name: 'Blake', health: 80}]
+console.log(farm.feed('Jess')); // "Yum!"
+console.log(farm.ants); // [{name: 'Jess', health: 95}, {name: 'Blake', health: 80}]
+
 
     // 🧪 TESTS, do not make any changes below this line ===================
     // 🧪 TESTS, do not make any changes below this line ===================
